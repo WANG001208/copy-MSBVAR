@@ -40,9 +40,12 @@ msvar <- function(Y, p, h, niterblkopt=10)
     for (j in 1:h){
         for (i in 1:m){
             thetahat.start[i,1:(m*p),j] <- init.model$ar.coefs[1+(i-1)*m*p:i*m*p]
-            print(1+(i-1)*m*p,i*m*p,init.model$ar.coefs[1+(i-1)*m*p:i*m*p])
+            print(1+(i-1)*m*p)
+            print(i*m*p)
+            print(init.model$ar.coefs[1+(i-1)*m*p:i*m*p])
             thetahat.start[i,1+(m*p),j] <- init.model$intercept[i]+(j-1)/100 # Adjust by a small amount over regimes for convinence in optimization.
-            print(i,init.model$intercept[i])
+            print(i)
+            print(init.model$intercept[i])
             }
         }
 
