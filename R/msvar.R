@@ -26,7 +26,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
                          lambda5=1, mu5=0, mu6=0, prior=2)
 
     print(init.model$ar.coefs)
-    print(init.model$ar.intercept)
+    print(init.model$intercept)
 
 # set initial parameters for blockwise optimization
 # initial Q
@@ -42,10 +42,10 @@ msvar <- function(Y, p, h, niterblkopt=10)
 # /It is inappropriate to use 0 as initial value, in addition, when we are facing high-dimensional MSM problems, the problem is non-convex, we need sample several different intial values to get the best we could get.(Firstly, let us try the results of using the value of szbvar as initial value.)
     for (j in 1:h){
         for (i in 1:m){
-            thetahat.start[i,1:(m*p),j] <- init.model$ar.coefs[1+(i-1)*m*p:i*m*p]
-            print(1+(i-1)*m*p)
-            print(i*m*p)
-            print(init.model$ar.coefs[1+(i-1)*m*p:i*m*p])
+            start=1+(i-1)*m*p
+            end=i*m*p
+            thetahat.start[i,1:(m*p),j] <- init.model$ar.coefs[start:end]
+            print(init.model$ar.coefs[start:end])
             thetahat.start[i,1+(m*p),j] <- init.model$intercept[i]+(j-1)/100 # Adjust by a small amount over regimes for convinence in optimization.
             print(i)
             print(init.model$intercept[i])
