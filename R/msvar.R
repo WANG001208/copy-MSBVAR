@@ -25,8 +25,8 @@ msvar <- function(Y, p, h, niterblkopt=10)
                          lambda0=1, lambda1=1, lambda3=1, lambda4=1,
                          lambda5=1, mu5=0, mu6=0, prior=2)
 
-    print(init.model$ar.coefs)
-    print(init.model$intercept)
+    # print(init.model$ar.coefs)
+    # print(init.model$intercept)
 
 # set initial parameters for blockwise optimization
 # initial Q
@@ -45,10 +45,10 @@ msvar <- function(Y, p, h, niterblkopt=10)
             start=1+(i-1)*m*p
             end=i*m*p
             thetahat.start[i,1:(m*p),j] <- init.model$ar.coefs[start:end]
-            print(init.model$ar.coefs[start:end])
+            # print(init.model$ar.coefs[start:end])
             thetahat.start[i,1+(m*p),j] <- init.model$intercept[i]+(j-1)/100 # Adjust by a small amount over regimes for convinence in optimization.
-            print(i)
-            print(init.model$intercept[i])
+            # print(i)
+            # print(init.model$intercept[i])
             }
         }
 
