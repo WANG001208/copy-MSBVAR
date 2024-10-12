@@ -33,7 +33,16 @@ msvar <- function(Y, p, h, niterblkopt=10)
     thetahat.start <- array(NA, c(m, 1+m*p+m, h))
 
 # set intercept and AR coef initial values all to zero
-    thetahat.start[,1:(1+m*p),] <- 0
+# 这里和YaweiZhao的原代码不同，我在这里进行了修改
+# /Here is different than the original code by Yawei Zhao, I made some adjustment here
+# 用0作为初始值并不合适，而且在面对高维度的MSM问题时，问题是非凸的，需要多个initial value 以争取达到最好的值(先试一下用szbvar的结果如何)
+# /It is inappropriate to use 0 as initial value, in addition, when we are facing high-dimensional MSM problems, the problem is non-convex, we need sample several different intial values to get the best we could get.(Firstly, let us try the results of using the value of szbvar as initial value.)
+    for (j in 1:h){
+        for (i in 1:m){
+            thetahat.start[i,1:(m*p),j] <- init.model$ar.coefs[1+(i-1)*m*p:i*m*p]
+            thetahat.start[i,1+(m*p),j] <- init.model$intercept[i]+(j-1)/100 # Adjust by a small amount over regimes for convinence in optimization.
+            }
+        }
 
 # set sigma initial values
 # first, get residuals from initial model
