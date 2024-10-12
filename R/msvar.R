@@ -25,6 +25,9 @@ msvar <- function(Y, p, h, niterblkopt=10)
                          lambda0=1, lambda1=1, lambda3=1, lambda4=1,
                          lambda5=1, mu5=0, mu6=0, prior=2)
 
+    print(init.model$ar.coefs)
+    print(init.model$ar.intercept)
+
 # set initial parameters for blockwise optimization
 # initial Q
     Qhat.start <- (1-(h*0.1/(h-1)))*diag(h) + matrix(0.1/(h-1), h, h)
