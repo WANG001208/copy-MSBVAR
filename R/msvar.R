@@ -35,6 +35,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
 # array for storage
     thetahat.start1 <- array(NA, c(m, 1+m*p+m, h))
     thetahat.start2 <- array(NA, c(m, 1+m*p+m, h))
+    thetahat.start3 <- array(NA, c(m, 1+m*p+m, h))
 
 # set intercept and AR coef initial values all to zero
 # 这里和YaweiZhao的原代码不同，我在这里进行了修改
@@ -53,8 +54,13 @@ msvar <- function(Y, p, h, niterblkopt=10)
             }
         }
     
-    thetahat.start2[,1:m*p,] <- 0.25
-    thetahat.start2[,1+m*p,] <- 0
+    thetahat.start2[,1:1+m*p,] <- 0
+    thetahat.start2[1,1,] <- 0.4
+    thetahat.start2[2,2,] <- 0.4
+
+    thetahat.start3[,1:1+m*p,] <- 0
+    thetahat.start3[1,1,] <- -0.4
+    thetahat.start3[2,2,] <- -0.4
 
 # set sigma initial values
 # first, get residuals from initial model
@@ -64,8 +70,12 @@ msvar <- function(Y, p, h, niterblkopt=10)
 
 # the sig2 starting values need to be different though,
 # so adjust these by a small amount over regimes
-    for (i in 1:h) { thetahat.start[,(1+m*p+1):(1+m*p+m),i] <-
+    for (i in 1:h) { thetahat.start1[,(1+m*p+1):(1+m*p+m),i] <-
                          sig2.start}
+    for (i in 1:h) { thetahat.start2[,(1+m*p+1):(1+m*p+m),i] <-
+                         sig2.start}
+    for (i in 1:h) { thetahat.start3[,(1+m*p+1):(1+m*p+m),i] <-
+                     sig2.start}
 
     blkopt_est1 <- blkopt(Y=Y, p=p, thetahat.start=thetahat.start1,
                          Qhat.start=Qhat.start, niter=niterblkopt,
@@ -75,8 +85,12 @@ msvar <- function(Y, p, h, niterblkopt=10)
                          Qhat.start=Qhat.start, niter=niterblkopt,
                          indms)
 
+    blkopt_est3 <- blkopt(Y=Y, p=p, thetahat.start=thetahat.start3,
+                     Qhat.start=Qhat.start, niter=niterblkopt,
+                     indms)
+
 # now, setup hreg, adjusting for dummies
-    if (blkopt_est2$llfval[niterblkopt+1] < blkopt_est1$llfval[niterblkopt+1]){
+    if (blkopt_est2$llfval[niterblkopt+1] <= blkopt_est1$llfval[niterblkopt+1] & blkopt_est3$llfval[niterblkopt+1] <= blkopt_est1$llfval[niterblkopt+1]){
         
         hreg <- hregime.reg2.mle(h, m, p, TT=(n-p), fp=blkopt_est1$fpH, init.model)
         output <- list(init.model=init.model,
@@ -86,7 +100,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
                m=m, p=p, h=h,
                llfval=blkopt_est1$llfval,
                DirectBFGSLastSuccess=blkopt_est1$DirectBFGSLastSuccess)
-        } else{
+        } else if(blkopt_est1$llfval[niterblkopt+1] <= blkopt_est2$llfval[niterblkopt+1] & blkopt_est3$llfval[niterblkopt+1] <= blkopt_est2$llfval[niterblkopt+1]){
         
         hreg <- hregime.reg2.mle(h, m, p, TT=(n-p), fp=blkopt_est2$fpH, init.model)
         output <- list(init.model=init.model,
@@ -96,6 +110,15 @@ msvar <- function(Y, p, h, niterblkopt=10)
                m=m, p=p, h=h,
                llfval=blkopt_est2$llfval,
                DirectBFGSLastSuccess=blkopt_est2$DirectBFGSLastSuccess)
+        } else{
+        hreg <- hregime.reg2.mle(h, m, p, TT=(n-p), fp=blkopt_est3$fpH, init.model)
+        output <- list(init.model=init.model,
+               hreg=hreg,
+               Q=blkopt_est3$Qhat,
+               fp=blkopt_est3$fpH,
+               m=m, p=p, h=h,
+               llfval=blkopt_est3$llfval,
+               DirectBFGSLastSuccess=blkopt_est3$DirectBFGSLastSuccess)
         }
 
     class(output) <- "MSVAR"
