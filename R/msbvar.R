@@ -230,7 +230,7 @@ blkopt <- function(Y, p, thetahat.start, Qhat.start, niter=10, indms) {
     # intercepts
     beta0.it <- optim(par=c(beta0.it), fn=llf.msar, Y=Yregmat, X=Xregmat, p=p,
                       theta=theta.it, Q=Qhat.it, optstr='beta0',
-                      ms.switch=indms, method="L-BFGS-B")$par
+                      ms.switch=indms, method="CG")$par
 
     if (length(grep('I', indms)) == 0) beta0.it <- array(beta0.it[1:m], c(m,1,h))
 
@@ -241,7 +241,7 @@ blkopt <- function(Y, p, thetahat.start, Qhat.start, niter=10, indms) {
       betap.it <- optim(par=c(betap.it), fn=llf.msar, Y=Yregmat,
                         X=Xregmat, p=p,
                         theta=theta.it, Q=Qhat.it, optstr='betap',
-                        ms.switch=indms, method="L-BFGS-B")$par
+                        ms.switch=indms, method="CG")$par
 
       # need to check below line...
       if (length(grep('A', indms)) == 0) betap.it <- array(betap.it[1:(m*p)], c(m,m*p,h))
@@ -253,7 +253,7 @@ blkopt <- function(Y, p, thetahat.start, Qhat.start, niter=10, indms) {
       # AR (univariate)
       sig2.it <- optim(par=c(sig2.it), fn=llf.msar, Y=Yregmat, X=Xregmat, p=p,
                        theta=theta.it, Q=Qhat.it, optstr='sig2',
-                       ms.switch=indms, method="L-BFGS-B")$par
+                       ms.switch=indms, method="CG")$par
 
       if (length(grep('H', indms)) == 0) { sig2.it <- array(sig2.it[1], c(m,m,h)) }  # adjust if variance does not switch
       sig2.it <- array(sig2.it, c(m,m,h))
@@ -263,7 +263,7 @@ blkopt <- function(Y, p, thetahat.start, Qhat.start, niter=10, indms) {
       sig2.lower <- optim(par=c(sig2.lower), fn=llf.msar, Y=Yregmat,
                           X=Xregmat, p=p,
                           theta=theta.it, Q=Qhat.it, optstr='sig2',
-                          ms.switch=indms, method="L-BFGS-B")$par
+                          ms.switch=indms, method="CG")$par
 
       sig2.it  <- array(NA, c(m,m,h))
       # number of distinct: m*(m+1)/2
@@ -280,7 +280,7 @@ blkopt <- function(Y, p, thetahat.start, Qhat.start, niter=10, indms) {
     Qhat.it <- optim(par=c(Qhat.it[,1:(h-1)]), fn=llf.msar, Y=Yregmat,
                      X=Xregmat, p=p,
                      theta=theta.it, Q=Qhat.it, optstr='Qhat',
-                     ms.switch=indms, method="L-BFGS-B")$par
+                     ms.switch=indms, method="CG")$par
 
     Qhat.it <- matrix(Qhat.it, nrow=h, ncol=h-1)
     Qhat.it <- cbind(Qhat.it, 1-rowSums(Qhat.it))
