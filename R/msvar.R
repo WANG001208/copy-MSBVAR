@@ -55,14 +55,14 @@ msvar <- function(Y, p, h, niterblkopt=10)
         }
     
     thetahat.start2[,1:(1+m*p),] <- 0
-    thetahat.start2[1,1,] <- 0.9
-    thetahat.start2[2,2,] <- 0.9
+    thetahat.start2[1,1,] <- 0.4
+    thetahat.start2[2,2,] <- 0.4
 
     print(thetahat.start2)
 
     thetahat.start3[,1:(1+m*p),] <- 0
-    thetahat.start3[1,1,] <- -0.9
-    thetahat.start3[2,2,] <- -0.9
+    thetahat.start3[1,1,] <- -0.4
+    thetahat.start3[2,2,] <- -0.4
 
     print(thetahat.start3)
 
