@@ -138,6 +138,9 @@ msvar <- function(Y, p, h, niterblkopt=10)
     output_theta <- array(NA, c(1+m*p+m, m, h))
     output_theta[1:1+m*p,,] <- output$hreg$Bk
     output_theta[1+m*p+1:1+m*p+m,,] <- output$hreg$Sigmak
+
+    Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
+    X <- init.model$X[(m+1+1):nrow(init.model$X),]
     
     optim_result <- fdHess(param.opt, llf.msvar, Y=Y, X=X, p=p, theta=output_theta Q=output$Q, optstr="all", ms.switch=indms)$Hessian
     std <- sqrt(abs(diag(solve(optim_result))))
