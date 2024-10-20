@@ -131,11 +131,12 @@ msvar <- function(Y, p, h, niterblkopt=10)
     # param_opt里面的参数顺序，取决于llf.msvar的需求
     # 因为原始的llf.msar比较奇怪，这里把llf.msar也改了一下，加上optstr="all"，并且
     param_opt <- array(NA, c(m*(1+m*p+(m+1)/2)+h-1, h))
-    regressor <- output$hreg$Bk[1:m*p,,]
+    print(param_opt)
+    regressor <- output$hreg$Bk[1:(m*p),,]
     dim(regressor) <- c(m*m*p,h)
     print(regressor)
-    print(param_opt[1:m*m*p,])
-    param_opt[1:m*m*p,] <- regressor
+    print(param_opt[1:(m*m*p),])
+    param_opt[1:(m*m*p),] <- regressor
     intercepts <- output$hreg$Bk[1+m*p,,]
     dim(intercepts) <- c(m,h)
     print(intercepts)
@@ -287,7 +288,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     beta0 <- array(param_opt[(m*m*p+1):(m*m*p+m),],c(m,1,h))
     print(beta0)
       
-    betap <- array(param_opt[1:m*m*p,],c(m,m*p,h))
+    betap <- array(param_opt[1:(m*m*p),],c(m,m*p,h))
     print(betap)
 
     for (s in 1:h){
