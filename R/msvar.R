@@ -149,6 +149,8 @@ msvar <- function(Y, p, h, niterblkopt=10)
     
     optim_result <- fdHess(param.opt=param_opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
     std <- sqrt(abs(diag(solve(optim_result))))
+    print("got std")
+    print(std)
     output$hessian <- std
     class(output) <- "MSVAR"
 
@@ -205,6 +207,7 @@ hregime.reg2.mle <- function(h, m, p, TT, fp, init.model)
 
 llf_msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
 
+  print("Start llf_msar")
   m <- ncol(Y)
   n <- nrow(Y) + p
   h <- nrow(Q)
@@ -283,6 +286,7 @@ llf_msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
     beta0 <- array(beta0[,,1], c(m,1,h))
   }
 
+  print("Value assigned sucessfully")
 
   #############################################
   # Filtering section
@@ -305,6 +309,7 @@ llf_msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
   } else {
     for (i in 1:h) { e[,,i] <- Y - X %*% betahat[,,i] }
   }
+  print("got residuals")
 
   # Using residuals, get filtered regime probabilities
   # HamFilt <- filter.Hamresid(e, sig2.it, Qhat.it)  # R code
@@ -318,6 +323,7 @@ llf_msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
          filtprSt = matrix(0,as.integer(n-p),as.integer(h))
          )
 
+  print("got HamFilt")
   f <- HamFilt$f
 
   return(-f) # optim() minimizes negative
