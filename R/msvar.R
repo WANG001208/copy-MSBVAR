@@ -283,6 +283,8 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     Q_hat <- array(NA,c(h-1,h))
     Qhat <- param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),]
     Qhat <- t(Qhat)
+    Qhat <- t(Qhat)
+    ##第一次transpose似乎没有起作用，下面的Qhat还是(h-1)*h维的。第一次用t使得Qhat转为matrix，第二次才能transpose？
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
     
     print("Q_hat")
@@ -294,7 +296,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     betap <- array(param_opt[1:(m*m*p),],c(m,m*p,h))
     print(betap)
 
-    mat <- array(NA,c(m,m))
+    mat <- array(0,c(m,m))#这里不能用NA了，要用0。
     for (s in 1:h){
         index <- 1
         for (j in 1:m) {
