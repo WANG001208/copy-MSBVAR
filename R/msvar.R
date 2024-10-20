@@ -137,7 +137,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(param_opt[(2+m*p):(m+m*p+1),,])
     print(output$Q)
     param_opt[(2+m*p):(m+m*p+1),,] <- output$hreg$Sigmak
-    param_opt[(m*p+m+2):(m*p+m+m+1),,] <- output$Q,c(2,1)
+    param_opt[(m*p+m+2):(m*p+m+m+1),,] <- output$Q
 
     output_theta <- array(NA, c((1+m*p+m),m,h))
     print(output_theta[1:(m*p+1),,])
@@ -251,7 +251,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
   } else if (optstr=='all'){
     # passing all the estimation in param_opt
-    Qhat <- matrix(param_opt[(2+m*p+m):(m+m+m*p+1-1),,], nrow=h, ncol=h-1)
+    Qhat <- matrix(param_opt[(2+m*p+m):(m+m+m*p+1),1,], nrow=h, ncol=h-1)
     Qhat <- cbing(Qhat, 1-rowSums(Qhat))
 
     beta0 <- array(param_opt[(m*p+1),,],c(m,1,h))
