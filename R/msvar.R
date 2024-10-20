@@ -138,7 +138,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(output$Q)
     param_opt[(2+m*p):(m+m*p+1),,] <- output$hreg$Sigmak
 
-    output_theta <- array(NA, c((1+m*p+m), m, h))
+    output_theta <- array(NA, c((1+m*p+m),m,h))
     print(output_theta[1:(m*p+1),,])
     print(output$hreg$Bk)
     output_theta[1:(m*p+1),,] <- output$hreg$Bk
@@ -154,7 +154,8 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(p)
     print(output_theta)
     print(output$Q)
-    
+
+    output_theta = aperm(output_theta, c(2, 1, 3))
     # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
     optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)$Hessian
     
