@@ -157,15 +157,15 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(output$Q)
 
     output_theta = aperm(output_theta, c(2, 1, 3))
-    optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
-    # optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)$Hessian
+    # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
+    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)#$Hessian
     
     print("got optim_result")
     print(optim_result)
-    std <- sqrt(abs(diag(solve(optim_result))))
-    print("got std")
-    print(std)
-    output$hessian <- std
+    # std <- sqrt(abs(diag(solve(optim_result))))
+    # print("got std")
+    # print(std)
+    output$hessian <- optim_result
     class(output) <- "MSVAR"
 
 return(output)
