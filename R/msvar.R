@@ -279,9 +279,10 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
       
     dim(param_opt) <- c(m*(1+m*p+(m+1)/2)+h-1,h)
     print(param_opt)
-    
-    Qhat <- aperm(param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),],c(2,1))
-    
+
+    Q_hat <- array(NA,c(h-1,h))
+    Qhat <- param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),]
+    Qhat <- t(Qhat)
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
     
     print("Q_hat")
