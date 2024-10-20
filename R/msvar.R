@@ -147,10 +147,11 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print("let us get X and Y")
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
-    print(head(Y))
-    print(head(X))
+    # print(head(Y))
+    # print(head(X))
     print("got X and Y")
     
+    print(p)
     print(param_opt)
     print(p)
     print(output_theta)
