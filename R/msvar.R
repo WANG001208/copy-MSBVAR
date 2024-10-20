@@ -130,7 +130,10 @@ msvar <- function(Y, p, h, niterblkopt=10)
 
     # param.opt里面的参数顺序，取决于llf.msvar的需求
     # 因为原始的llf.msar比较奇怪，这里把llf.msar也改了一下，加上optstr="all"，并且
-    param.opt <- c(output$hreg$Bk[m*p+1,,],output$hreg$Bk[1:m*p,,],output$hreg$Sigmak,output$Q)
+    param.opt <- array(NA, c(1+m*p+m, m, h))
+    param.opt[1:m*p,,] <- output$hreg$Bk[1:m*p,,]
+    param.opt[m*p+1,,] <- output$hreg$Bk[1+m*p,,]
+    param.opt[2+m*p:m+m*p+1] <- output$Q
 
     output_theta <- array(NA, c(1+m*p+m, m, h))
     output_theta[1:1+m*p,,] <- output$hreg$Bk
