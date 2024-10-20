@@ -222,8 +222,14 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
 
   print("Start llf_msar")
   m <- ncol(Y)
+  print("m")
+  print(m)
   n <- nrow(Y) + p
+  print("n")
+  print(n)
   h <- nrow(Q)
+  print("h")
+  print(h)
 
   # initially assign values from theta
   beta0 <- array(theta[,1,], c(m,1,h))
