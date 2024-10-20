@@ -156,7 +156,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(output$Q)
     
     # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
-    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms hessian=TRUE)$Hessian
+    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)$Hessian
     
     print("got optim_result")
     std <- sqrt(abs(diag(solve(optim_result))))
