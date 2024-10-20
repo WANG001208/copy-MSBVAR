@@ -147,7 +147,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
     
-    optim_result <- fdHess(param.opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr="all", ms.switch=indms)$Hessian
+    optim_result <- fdHess(param.opt, llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr="all", ms.switch=indms)$Hessian
     std <- sqrt(abs(diag(solve(optim_result))))
     output$hessian <- std
     class(output) <- "MSVAR"
@@ -155,8 +155,6 @@ msvar <- function(Y, p, h, niterblkopt=10)
 return(output)
 
 } # end mlemsvar() function
-
-
 
 
 # Ryan adjusted several items from the original hregime.reg2 function
@@ -205,3 +203,123 @@ hregime.reg2.mle <- function(h, m, p, TT, fp, init.model)
     return(list(Bk=Bk, Sigmak=Sigmak, df=df, e=e, moment=tmp))
 }
 
+llf_msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
+
+  m <- ncol(Y)
+  n <- nrow(Y) + p
+  h <- nrow(Q)
+
+  # initially assign values from theta
+  beta0 <- array(theta[,1,], c(m,1,h))
+  betap <- NULL
+  if (p > 0) betap <- array(theta[,2:(1+m*p),], c(m,m*p,h))
+  sig2  <- array(theta[,(1+m*p+1):ncol(theta),], c(m,m,h))
+  Qhat  <- Q
+
+  # now choose the parameter over which we are optimizing
+  if (optstr=='beta0') {
+    beta0 <- array(param.opt, c(m,1,h))
+  } else if (optstr=='betap') {
+    if (p > 0) betap <- array(param.opt, c(m,m*p,h))
+  } else if (optstr=='sig2') {
+      sig2  <- array(NA, c(m,m,h))
+      # number of distinct: m*(m+1)/2
+      nd <- (m*(m+1)/2)
+      for (i in 1:h) {
+        low <- param.opt[(1+(i-1)*nd):(nd+(i-1)*nd)]
+        sig2[,,i] <- xpnd(low, nrow=m)  # user-defined function below
+      }
+  } else if (optstr=='Qhat') {
+    # only passing in first h-1 columns, so add column
+    Qhat <- matrix(param.opt, nrow=h, ncol=h-1)
+    Qhat <- cbind(Qhat, 1-rowSums(Qhat))
+  } else if (optstr=='all'){
+    # passing all the estimation in param.opt
+    Qhat <- matrix(param.opt[(2+m*p):(m+m*p+1),,], nrow=h, ncol=h-1)
+    Qhat <- cbing(Qhat, 1-rowSums(Qhat))
+
+    beta0 <- array(param.opt[(m*p+1),,],c(m,1,h))
+    betap <- array(param.opt[1:m*p,,],c(m,m*p,h))
+    sig2 <- array(param.opt[(1+m*p+1):(1+m*p+m),,],c(m,m,h))
+  }
+
+  # numerical checks on Q matrix
+  # prevents elements in Q from going negative or greater than 1
+  # if that occurs during optimization, then just set to previous Q
+  if ( (min(Qhat) <= 0.0001) || (max(Qhat) >= 0.9999 )) Qhat <- Q
+
+  # numerical checks on sig2
+  # prevents elements in sig2 from going negative
+  # if that occurs during optimization, then just set to previous sig2
+  if ( (min(sig2) <= 0.0001) ) sig2 <- array(theta[,(1+m*p+1):ncol(theta),], c(m,m,h))
+  # constrain max(off-diagonal) to be less than min(diagonal)
+  blnUseOld <- FALSE
+  if (m>1) {
+    blnSetPast = 0
+    for (i in 1:h) {
+      if (max(sig2[,,i][lower.tri(sig2[,,i], diag=FALSE)]) > min(diag(sig2[,,i]))) blnSetPast = 1
+    }
+    if (blnSetPast == 1) blnUseOld <- TRUE
+  }
+  if (blnUseOld==TRUE) sig2 <- array(theta[,(1+m*p+1):ncol(theta),], c(m,m,h))
+
+  # by default, everything switches, so now adjust by
+  # assigning values that do not switch to first state
+  # intercept only
+  if (ms.switch=='I') {
+    if (p > 0) betap <- array(betap[,,1], c(m,m*p,h))
+    sig2  <- array(sig2[,,1], c(m,m,h))
+  } else if (ms.switch=='H') { # heteroskedastic
+    beta0 <- array(beta0[,,1], c(m,1,h))
+    if (p > 0) betap <- array(betap[,,1], c(m,m*p,h))
+  } else if (ms.switch=='A') {
+    beta0 <- array(beta0[,,1], c(m,1,h))
+    sig2  <- array(sig2[,,1], c(m,m,h))
+  } else if (ms.switch=='IA') { # homoskedastic
+    sig2  <- array(sig2[,,1], c(m,m,h))
+  } else if (ms.switch=='IH') {
+    if (p > 0) betap <- array(betap[,,1], c(m,m*p,h))
+  } else if (ms.switch=='AH') {
+    beta0 <- array(beta0[,,1], c(m,1,h))
+  }
+
+
+  #############################################
+  # Filtering section
+  # Note: there is both Fortran and native R
+  #       code in the package (they parallel).
+  # Use Fortran for speed, but R for
+  # pedagogical purposes.
+  #############################################
+
+  # First, obtain residuals
+  # e[,,i] is an (n-p) x m matrix containing conditional means
+  # for regime i, i=1,2,...,h (e's third dimension is regime)
+  e <- array(NA, c(n-p, m, h))
+  betahat <- array(NA, c(m,1+m*p,h))
+  betahat[,1,] <- beta0
+  if (p>0) betahat[,2:(1+m*p),] <- betap
+  # adjust for univariate vs. multivariate case
+  if (m>1) {
+    for (i in 1:h) { e[,,i] <- Y - X %*% t(betahat[,,i]) }
+  } else {
+    for (i in 1:h) { e[,,i] <- Y - X %*% betahat[,,i] }
+  }
+
+  # Using residuals, get filtered regime probabilities
+  # HamFilt <- filter.Hamresid(e, sig2.it, Qhat.it)  # R code
+  HamFilt <- .Fortran("HamiltonFilter",
+         bigt=as.integer(n),
+         m = as.integer(m), p = as.integer(p), h = as.integer(h),
+         e = e,
+         sig2 = sig2,
+         Qhat = Qhat,
+         f = double(1),
+         filtprSt = matrix(0,as.integer(n-p),as.integer(h))
+         )
+
+  f <- HamFilt$f
+
+  return(-f) # optim() minimizes negative
+
+}
