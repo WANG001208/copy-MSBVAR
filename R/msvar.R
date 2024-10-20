@@ -144,10 +144,13 @@ msvar <- function(Y, p, h, niterblkopt=10)
     output_theta[1:(m*p+1),,] <- output$hreg$Bk
     output_theta[(1+m*p+1):(1+m*p+m),,] <- output$hreg$Sigmak
 
+    print("let us get X and Y")
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
+    print("got X and Y")
     
     optim_result <- fdHess(param.opt=param_opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
+    print("got optim_result")
     std <- sqrt(abs(diag(solve(optim_result))))
     print("got std")
     print(std)
