@@ -161,6 +161,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)$Hessian
     
     print("got optim_result")
+    print(optim_result)
     std <- sqrt(abs(diag(solve(optim_result))))
     print("got std")
     print(std)
