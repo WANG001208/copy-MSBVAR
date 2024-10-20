@@ -268,7 +268,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     Qhat <- matrix(param_opt[(2+m*p+m):(m+m+m*p+1),1,1], nrow=h, ncol=h-1)
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
     print("Q_hat")
-    print(Q_hat)
+    print(Qhat)
     beta0 <- array(param_opt[(m*p+1),,],c(m,1,h))
     print(beta0)
     betap <- array(param_opt[1:m*p,,],c(m,m*p,h))
