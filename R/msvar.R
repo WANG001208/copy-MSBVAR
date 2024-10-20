@@ -1,6 +1,9 @@
 ### msvar.R -- Estimates the MLE for MSVAR and MS univariate
 ### models.
 
+### hregime在得到fph后进行加权MLE
+### 得到fph是通过blkopt，即EM algorithm算出来的。所谓的block optimization，就是先固定除mu以外的其他参数，优化mu，然后再优化别人，类似于EM algorithm，但不完全一样.
+
 # 20120109 : Initial version by Ryan Davis
 
 
@@ -125,6 +128,17 @@ msvar <- function(Y, p, h, niterblkopt=10)
                DirectBFGSLastSuccess=blkopt_est3$DirectBFGSLastSuccess)
         }
 
+    # param.opt里面的参数顺序，取决于llf.msvar的需求
+    # 因为原始的llf.msar比较奇怪，这里把llf.msar也改了一下，加上optstr="all"，并且
+    param.opt <- c(output$hreg$Bk[m*p+1,,],output$hreg$Bk[1:m*p,,],output$hreg$Sigmak,output$Q)
+
+    output_theta <- array(NA, c(1+m*p+m, m, h))
+    output_theta[1:1+m*p,,] <- output$hreg$Bk
+    output_theta[1+m*p+1:1+m*p+m,,] <- output$hreg$Sigmak
+    
+    optim_result <- fdHess(param.opt, llf.msvar, Y=Y, X=X, p=p, theta=output_theta Q=output$Q, optstr="all", ms.switch=indms)$Hessian
+    std <- sqrt(abs(diag(solve(optim_result))))
+    output$hessian <- std
     class(output) <- "MSVAR"
 
 return(output)
