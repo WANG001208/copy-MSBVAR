@@ -233,29 +233,29 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
 
   # now choose the parameter over which we are optimizing
   if (optstr=='beta0') {
-    beta0 <- array(param.opt, c(m,1,h))
+    beta0 <- array(param_opt, c(m,1,h))
   } else if (optstr=='betap') {
-    if (p > 0) betap <- array(param.opt, c(m,m*p,h))
+    if (p > 0) betap <- array(param_opt, c(m,m*p,h))
   } else if (optstr=='sig2') {
       sig2  <- array(NA, c(m,m,h))
       # number of distinct: m*(m+1)/2
       nd <- (m*(m+1)/2)
       for (i in 1:h) {
-        low <- param.opt[(1+(i-1)*nd):(nd+(i-1)*nd)]
+        low <- param_opt[(1+(i-1)*nd):(nd+(i-1)*nd)]
         sig2[,,i] <- xpnd(low, nrow=m)  # user-defined function below
       }
   } else if (optstr=='Qhat') {
     # only passing in first h-1 columns, so add column
-    Qhat <- matrix(param.opt, nrow=h, ncol=h-1)
+    Qhat <- matrix(param_opt, nrow=h, ncol=h-1)
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
   } else if (optstr=='all'){
-    # passing all the estimation in param.opt
-    Qhat <- matrix(param.opt[(2+m*p):(m+m*p+1),,], nrow=h, ncol=h-1)
+    # passing all the estimation in param_opt
+    Qhat <- matrix(param_opt[(2+m*p):(m+m*p+1),,], nrow=h, ncol=h-1)
     Qhat <- cbing(Qhat, 1-rowSums(Qhat))
 
-    beta0 <- array(param.opt[(m*p+1),,],c(m,1,h))
-    betap <- array(param.opt[1:m*p,,],c(m,m*p,h))
-    sig2 <- array(param.opt[(1+m*p+1):(1+m*p+m),,],c(m,m,h))
+    beta0 <- array(param_opt[(m*p+1),,],c(m,1,h))
+    betap <- array(param_opt[1:m*p,,],c(m,m*p,h))
+    sig2 <- array(param_opt[(1+m*p+1):(1+m*p+m),,],c(m,m,h))
   }
 
   # numerical checks on Q matrix
