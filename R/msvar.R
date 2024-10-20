@@ -147,6 +147,8 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print("let us get X and Y")
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
+    print(Y)
+    print(X)
     print("got X and Y")
     
     optim_result <- fdHess(param.opt=param_opt, llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
