@@ -147,11 +147,13 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print("let us get X and Y")
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
-    print(Y)
-    print(X)
+    print(head(Y))
+    print(head(X))
     print("got X and Y")
     
-    optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
+    # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
+    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms hessian=TRUE)$Hessian
+    
     print("got optim_result")
     std <- sqrt(abs(diag(solve(optim_result))))
     print("got std")
@@ -210,7 +212,7 @@ hregime.reg2.mle <- function(h, m, p, TT, fp, init.model)
     return(list(Bk=Bk, Sigmak=Sigmak, df=df, e=e, moment=tmp))
 }
 
-llf_msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
+llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
 
   print("Start llf_msar")
   m <- ncol(Y)
