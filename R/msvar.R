@@ -130,14 +130,23 @@ msvar <- function(Y, p, h, niterblkopt=10)
 
     # param_opt里面的参数顺序，取决于llf.msvar的需求
     # 因为原始的llf.msar比较奇怪，这里把llf.msar也改了一下，加上optstr="all"，并且
-    param_opt <- array(NA, c(1+m*p+m+m, m, h))
-    param_opt[1:m*p,,] <- output$hreg$Bk[1:m*p,,]
-    param_opt[m*p+1,,] <- output$hreg$Bk[1+m*p,,]
+    param_opt <- array(NA, c(m*(1+m*p+(m+1)/2)+h-1, h))
+    regressor <- output$hreg$Bk[1:m*p,,]
+    dim(regressor) <- c(m*m*p,h)
+    param_opt[1:m*m*p,] <- regressor
+    intercepts <- output$hreg$Bk[1+m*p,,]
+    dim(intercepts) <- c(m,h)
+    param_opt[(m*m*p+1):(m*m*p+m),] <- intercepts
     # 这里需要注意，在R的index里面，:比+有更高的优先计算级，所以当我们的index设计加法运算时，必须加上括号
-    print(param_opt[(2+m*p):(m+m*p+1),,])
+    # print(param_opt[(2+m*p):(m+m*p+1),,])
     print(output$Q)
-    param_opt[(2+m*p):(m+m*p+1),,] <- output$hreg$Sigmak
-    param_opt[(m*p+m+2):(m*p+m+m+1),,] <- output$Q
+    for (i in 1:h) { 
+        upper_q <- chol(output$hreg$Sigmak[,,i])
+        sigma_value <- as.vector(upper_q)
+        sigma_value <- sigma_value[sigma_value!=0]
+        param_opt[(m+m*m+p+1):(m+m*m+p+m*(m+1)/2)] <- sigma_value
+        param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1)] <- output$Q[i,h-1,h]
+    }
 
     output_theta <- array(NA, c((1+m*p+m),m,h))
     print(output_theta[1:(m*p+1),,])
@@ -158,14 +167,14 @@ msvar <- function(Y, p, h, niterblkopt=10)
 
     output_theta = aperm(output_theta, c(2, 1, 3))
     # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
-    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)#$Hessian
+    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,hessian=TRUE)$hessian
     
     print("got optim_result")
     print(optim_result)
-    # std <- sqrt(abs(diag(solve(optim_result))))
-    # print("got std")
-    # print(std)
-    output$hessian <- optim_result
+    std <- sqrt(abs(diag(solve(optim_result))))
+    print("got std")
+    print(std)
+    output$hessian <- std
     class(output) <- "MSVAR"
 
 return(output)
@@ -240,6 +249,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
   Qhat  <- Q
 
   # now choose the parameter over which we are optimizing
+  #目前只写了optstr=='all'的情况，对于其他情况应该是跑不通的。
   if (optstr=='beta0') {
     beta0 <- array(param_opt, c(m,1,h))
   } else if (optstr=='betap') {
@@ -258,23 +268,34 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
   } else if (optstr=='all'){
     # passing all the estimation in param_opt
-    
-    print("2+m*p+m:m+m+m*p+1")
-    print(2+m*p+m)
-    print(m+m+m*p+1)
-
+      
+    dim(param_opt) <- c(m*(1+m*p+(m+1)/2)+h-1,h)
     print(param_opt)
-    dim(param_opt) <- c(7,2,2)
-    print(param_opt[(2+m*p+m):(m+m+m*p+1),1,1])
-    Qhat <- matrix(param_opt[(2+m*p+m):(m+m+m*p+1),1,1], nrow=h, ncol=h-1)
+    
+    Qhat <- aperm(param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),],c(2,1))
+    
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
+    
     print("Q_hat")
     print(Qhat)
-    beta0 <- array(param_opt[(m*p+1),,],c(m,1,h))
+      
+    beta0 <- array(param_opt[(m*m*p+1):(m*m*p+m),],c(m,1,h))
     print(beta0)
-    betap <- array(param_opt[1:m*p,,],c(m,m*p,h))
+      
+    betap <- array(param_opt[1:m*m*p,],c(m,m*p,h))
     print(betap)
-    sig2 <- array(param_opt[(1+m*p+1):(1+m*p+m),,],c(m,m,h))
+
+    for (s in 1:h){
+        index <- 1
+        for (i in 1:m) {
+          for (j in i:m) {
+            mat[i, j] <- param_opt[(m*(1+m*p)+1):(m*(1+m*p+(m+1)/2)),s][index]
+            index <- index + 1
+          }
+        mat_t <- t(mat)
+        sig2[,,s] <- mat_t %*% mat
+        }
+    }
     print(sig2)
   }
 
