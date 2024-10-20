@@ -142,7 +142,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
     
-    optim_result <- fdHess(param.opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta Q=output$Q, optstr="all", ms.switch=indms)$Hessian
+    optim_result <- fdHess(param.opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr="all", ms.switch=indms)$Hessian
     std <- sqrt(abs(diag(solve(optim_result))))
     output$hessian <- std
     class(output) <- "MSVAR"
