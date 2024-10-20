@@ -147,7 +147,9 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(output$Q)
     for (i in 1:h) { 
         upper_q <- chol(output$hreg$Sigmak[,,i])
+        print(upper_q)
         sigma_value <- as.vector(upper_q)
+        print(sigma_value)
         sigma_value <- sigma_value[sigma_value!=0]
         param_opt[(m+m*m+p+1):(m+m*m+p+m*(m+1)/2),i] <- sigma_value
         param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),i] <- output$Q[i,h-1]
@@ -291,10 +293,11 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     betap <- array(param_opt[1:(m*m*p),],c(m,m*p,h))
     print(betap)
 
+    mat <- array(NA,c(m,m))
     for (s in 1:h){
         index <- 1
-        for (i in 1:m) {
-          for (j in i:m) {
+        for (j in 1:m) {
+          for (i in 1:j) {
             mat[i, j] <- param_opt[(m*(1+m*p)+1):(m*(1+m*p+(m+1)/2)),s][index]
             index <- index + 1
           }
