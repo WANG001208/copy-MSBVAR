@@ -133,15 +133,16 @@ msvar <- function(Y, p, h, niterblkopt=10)
     param.opt <- array(NA, c(1+m*p+m, m, h))
     param.opt[1:m*p,,] <- output$hreg$Bk[1:m*p,,]
     param.opt[m*p+1,,] <- output$hreg$Bk[1+m*p,,]
-    print(param.opt[2+m*p:m+m*p+1,,])
+    # 这里需要注意，在R的index里面，:比+有更高的优先计算级，所以当我们的index设计加法运算时，必须加上括号
+    print(param.opt[(2+m*p):(m+m*p+1),,])
     print(output$Q)
-    param.opt[2+m*p:m+m*p+1,,] <- output$Q
+    param.opt[(2+m*p):(m+m*p+1),,] <- output$Q
 
-    output_theta <- array(NA, c(1+m*p+m, m, h))
-    print(output_theta[1:m*p+1,,])
+    output_theta <- array(NA, c((1+m*p+m), m, h))
+    print(output_theta[1:(m*p+1),,])
     print(output$hreg$Bk)
-    output_theta[1:m*p+1,,] <- output$hreg$Bk
-    output_theta[1+m*p+1:1+m*p+m,,] <- output$hreg$Sigmak
+    output_theta[1:(m*p+1),,] <- output$hreg$Bk
+    output_theta[(1+m*p+1):(1+m*p+m),,] <- output$hreg$Sigmak
 
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
