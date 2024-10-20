@@ -257,6 +257,13 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
   } else if (optstr=='all'){
     # passing all the estimation in param_opt
+    
+    print("2+m*p+m:m+m+m*p+1")
+    print(2+m*p+m)
+    print(m+m+m*p+1)
+
+    print(param_opt)
+    
     print(param_opt[(2+m*p+m):(m+m+m*p+1),1,1])
     Qhat <- matrix(param_opt[(2+m*p+m):(m+m+m*p+1),1,1], nrow=h, ncol=h-1)
     Qhat <- cbing(Qhat, 1-rowSums(Qhat))
