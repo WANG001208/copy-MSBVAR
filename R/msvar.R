@@ -133,12 +133,14 @@ msvar <- function(Y, p, h, niterblkopt=10)
     param.opt <- array(NA, c(1+m*p+m, m, h))
     param.opt[1:m*p,,] <- output$hreg$Bk[1:m*p,,]
     param.opt[m*p+1,,] <- output$hreg$Bk[1+m*p,,]
-    param.opt[2+m*p:m+m*p+1] <- output$Q
+    print(param.opt[2+m*p:m+m*p+1,,])
+    print(output$Q)
+    param.opt[2+m*p:m+m*p+1,,] <- output$Q
 
     output_theta <- array(NA, c(1+m*p+m, m, h))
-    output_theta[1:m*p+1,,] <- output$hreg$Bk
     print(output_theta[1:m*p+1,,])
     print(output$hreg$Bk)
+    output_theta[1:m*p+1,,] <- output$hreg$Bk
     output_theta[1+m*p+1:1+m*p+m,,] <- output$hreg$Sigmak
 
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
