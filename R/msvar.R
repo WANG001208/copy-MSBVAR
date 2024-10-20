@@ -134,7 +134,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     param_opt[1:m*p,,] <- output$hreg$Bk[1:m*p,,]
     param_opt[m*p+1,,] <- output$hreg$Bk[1+m*p,,]
     # 这里需要注意，在R的index里面，:比+有更高的优先计算级，所以当我们的index设计加法运算时，必须加上括号
-    print(param.opt[(2+m*p):(m+m*p+1),,])
+    print(param_opt[(2+m*p):(m+m*p+1),,])
     print(output$Q)
     param_opt[(2+m*p):(m+m*p+1),,] <- output$hreg$Sigmak
 
@@ -147,7 +147,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     Y <- init.model$Y[(m+1+1):nrow(init.model$Y),]
     X <- init.model$X[(m+1+1):nrow(init.model$X),]
     
-    optim_result <- fdHess(param_opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
+    optim_result <- fdHess(param.opt=param_opt, llf.msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
     std <- sqrt(abs(diag(solve(optim_result))))
     output$hessian <- std
     class(output) <- "MSVAR"
