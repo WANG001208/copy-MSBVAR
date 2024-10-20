@@ -373,12 +373,12 @@ llf.msar <- function(param.opt, Y, X, p, theta, Q, optstr, ms.switch) {
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
   } else if (optstr=='all'){
     # passing all the estimation in param.opt
-    Qhat <- matrix(param.opt[2+m*p:m+m*p+1,,], nrow=h, ncol=h-1)
+    Qhat <- matrix(param.opt[(2+m*p):(m+m*p+1),,], nrow=h, ncol=h-1)
     Qhat <- cbing(Qhat, 1-rowSums(Qhat))
 
-    beta0 <- array(param.opt[m*p+1,,],c(m,1,h))
+    beta0 <- array(param.opt[(m*p+1),,],c(m,1,h))
     betap <- array(param.opt[1:m*p,,],c(m,m*p,h))
-    sig2 <- array(param.opt[1+m*p+1:1+m*p+m,,],c(m,m,h))
+    sig2 <- array(param.opt[(1+m*p+1):(1+m*p+m),,],c(m,m,h))
   }
 
   # numerical checks on Q matrix
