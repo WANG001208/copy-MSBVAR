@@ -179,10 +179,10 @@ msvar <- function(Y, p, h, niterblkopt=10)
     
     print("got optim_result")
     print(optim_result)
-    # std <- sqrt(abs(diag(solve(optim_result))))
-    # print("got std")
-    # print(std)
-    output$hessian <- optim_result
+    std <- sqrt(abs(diag(solve(optim_result))))
+    print("got std")
+    print(std)
+    output$param_std <- std
     class(output) <- "MSVAR"
 
 return(output)
