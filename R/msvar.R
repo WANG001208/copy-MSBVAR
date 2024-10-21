@@ -320,7 +320,10 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
   # numerical checks on Q matrix
   # prevents elements in Q from going negative or greater than 1
   # if that occurs during optimization, then just set to previous Q
-  if ( (min(Qhat) <= 0.0001) || (max(Qhat) >= 0.9999 )) Qhat <- Q
+  if ( (min(Qhat) <= 0.0001) || (max(Qhat) >= 0.9999 )){
+      Qhat <- Q
+      print("Q is wrong")
+    }
 
   # numerical checks on sig2
   # prevents elements in sig2 from going negative
