@@ -177,7 +177,11 @@ msvar <- function(Y, p, h, niterblkopt=10)
     output_theta = aperm(output_theta, c(2, 1, 3))
     print(param_opt)
     # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
-    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,control = list(maxit = 10),hessian=TRUE)
+    low = array(-Inf, c((m*(1+m*p+(m+1)/2)+h-1),h))
+    up = array(Inf, c((m*(1+m*p+(m+1)/2)+h-1),h))
+    low[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),] = 0
+    up[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),] = 1
+    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,lower = low, upper = up,control = list(maxit = 100000),hessian=TRUE)
     print("maxit")
     print(100000)
     
