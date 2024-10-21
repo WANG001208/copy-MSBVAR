@@ -284,7 +284,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
       
     dim(param_opt) <- c(m*(1+m*p+(m+1)/2)+h-1,h)
     # print("param_opt")
-    print(param_opt)
+    # print(param_opt)
     # print(param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),])
     Q_hat <- array(NA,c(h-1,h))
     Qhat <- param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),]
@@ -323,6 +323,8 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
   if ( (min(Qhat) <= 0.0001) || (max(Qhat) >= 0.9999 )){
       Qhat <- Q
       print("Q is wrong")
+      print(Q)
+      print(Qhat)
     }
 
   # numerical checks on sig2
