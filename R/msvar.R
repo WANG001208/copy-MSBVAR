@@ -152,7 +152,8 @@ msvar <- function(Y, p, h, niterblkopt=10)
         print(sigma_value)
         sigma_value <- sigma_value[sigma_value!=0]
         param_opt[(m+m*m*p+1):(m+m*m*p+m*(m+1)/2),i] <- sigma_value
-        param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),i] <- output$Q[i,h-1]
+        #下面这么写会不会有维度mismatch的问题？是不是要把output$Q[i,1:h-1]做一下转置？
+        param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),i] <- output$Q[i,1:h-1]
     }
     print(param_opt)
 
@@ -174,6 +175,7 @@ msvar <- function(Y, p, h, niterblkopt=10)
     print(output$Q)
 
     output_theta = aperm(output_theta, c(2, 1, 3))
+    print(param_opt)
     # optim_result <- fdHess(pars=param_opt, fun=llf_msar, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms)$Hessian
     optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms,control = list(maxit = 100000),hessian=TRUE)
     print("maxit")
@@ -242,15 +244,15 @@ hregime.reg2.mle <- function(h, m, p, TT, fp, init.model)
 llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
 
   print("Start llf_msar")
-  m <- ncol(Y)
-  print("m")
-  print(m)
+  # m <- ncol(Y)
+  # print("m")
+  # print(m)
   n <- nrow(Y) + p
-  print("n")
-  print(n)
+  # print("n")
+  # print(n)
   h <- nrow(Q)
-  print("h")
-  print(h)
+  # print("h")
+  # print(h)
 
   # initially assign values from theta
   beta0 <- array(theta[,1,], c(m,1,h))
@@ -281,7 +283,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     # passing all the estimation in param_opt
       
     dim(param_opt) <- c(m*(1+m*p+(m+1)/2)+h-1,h)
-    print(param_opt)
+    # print(param_opt)
 
     Q_hat <- array(NA,c(h-1,h))
     Qhat <- param_opt[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),]
@@ -290,14 +292,14 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     ##第一次transpose似乎没有起作用，下面的Qhat还是(h-1)*h维的。第一次用t使得Qhat转为matrix，第二次才能transpose？
     Qhat <- cbind(Qhat, 1-rowSums(Qhat))
     
-    print("Q_hat")
-    print(Qhat)
+    # print("Q_hat")
+    # print(Qhat)
       
     beta0 <- array(param_opt[(m*m*p+1):(m*m*p+m),],c(m,1,h))
-    print(beta0)
+    # print(beta0)
       
     betap <- array(param_opt[1:(m*m*p),],c(m,m*p,h))
-    print(betap)
+    # print(betap)
 
     mat <- array(0,c(m,m))#这里不能用NA了，要用0。
     for (s in 1:h){
@@ -311,7 +313,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
         sig2[,,s] <- mat_t %*% mat
         }
     }
-    print(sig2)
+    # print(sig2)
   }
 
   # numerical checks on Q matrix
@@ -354,7 +356,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
     beta0 <- array(beta0[,,1], c(m,1,h))
   }
 
-  print("Value assigned sucessfully")
+  # print("Value assigned sucessfully")
 
   #############################################
   # Filtering section
@@ -377,7 +379,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
   } else {
     for (i in 1:h) { e[,,i] <- Y - X %*% betahat[,,i] }
   }
-  print("got residuals")
+  # print("got residuals")
 
   # Using residuals, get filtered regime probabilities
   # HamFilt <- filter.Hamresid(e, sig2.it, Qhat.it)  # R code
@@ -391,7 +393,7 @@ llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
          filtprSt = matrix(0,as.integer(n-p),as.integer(h))
          )
 
-  print("got HamFilt")
+  # print("got HamFilt")
   f <- HamFilt$f
 
   return(-f) # optim() minimizes negative
