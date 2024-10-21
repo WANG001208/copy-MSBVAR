@@ -181,9 +181,10 @@ msvar <- function(Y, p, h, niterblkopt=10)
     up = array(Inf, c((m*(1+m*p+(m+1)/2)+h-1),h))
     low[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),] = 0
     up[(m*(1+m*p+(m+1)/2)+1):(m*(1+m*p+(m+1)/2)+h-1),] = 1
-    optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms, method="L-BFGS-B", lower = low, upper = up,control = list(maxit = 100000),hessian=TRUE)
-    print("maxit")
-    print(100000)
+    # optim_result <- optim(par=param_opt, fn=llf_msar, gr=NULL, Y=Y, X=X, p=p, theta=output_theta,Q=output$Q, optstr='all', ms.switch=indms, method="L-BFGS-B", lower = low, upper = up,control = list(maxit = 100000),hessian=TRUE)
+    # print("maxit")
+    # print(100000)
+    optim_result <- hessian(func = llf_msar, x = param_opt, Y = Y, X = X, p = p, theta = output_theta, Q = output$Q, optstr = 'all', ms.switch = indms)
     
     print("got optim_result")
     print(optim_result)
