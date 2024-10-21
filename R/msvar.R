@@ -243,7 +243,7 @@ hregime.reg2.mle <- function(h, m, p, TT, fp, init.model)
 
 llf_msar <- function(param_opt, Y, X, p, theta, Q, optstr, ms.switch) {
 
-  print("Start llf_msar")
+  # print("Start llf_msar")
   m <- ncol(Y)
   # print("m")
   # print(m)
